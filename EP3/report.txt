@@ -1,0 +1,23 @@
+Projeto de CPU - EP 3a
+
+Arthur Azevedo Massola 10297904
+Aurea Hariki 9298594
+Bruna Thalenberg 8569211
+
+--------------------------------------------------------------------------------------
+Algumas decisões de projeto tomadas:
+
+-> Em modo write, os dados enviados ao display de dígitos são os dados que estão sendo
+enviados à RAM (que podem ser os dados do contador ou do input, a depender do modo
+escolhido).
+-> Em modo read, os dados enviados ao display de dígitos são os dados que estão sendo
+lidos da RAM.
+
+--------------------------------------------------------------------------------------
+Há 5 pinos de controle, todos devidamente sinalizados.
+-> O pino "inc" seta o contador para que incremente seu valor em 1 a cada pulso de CLK.
+-> O pino "reset" reseta os valores da RAM.
+-> O pino "read/write" seleciona o modo de leitura ou escrita, respectivamente.
+-> O pino destino seleciona o display a ser usado para mostrar os dígitos.
+-> O pino de controle de input (9) indica se os dados a serem enviados à RAM serão do
+input ou do contador.

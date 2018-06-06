@@ -1,0 +1,63 @@
+Arthur Azevedo Massola 10297904
+Aurea Hariki 9298594
+Bruna Thalenberg 8569211
+
+****************************************************************************************************
+
+O circuito foi feito de maneira modularizada
+
+Os módulos aritméticos são, em ordem de complexidade crescente:
+
+> O somador de dois bits ("soma-1-bit"). Este é um somador completo, ou seja, conta com um carry in
+e um carry out, além da saída.
+
+> A partir do somador de 1 bit, foi gerado o somador de dois bytes de 8 bits ("soma-8-bits"). Este
+somador recebe, além dos dois bits, um bit de carry in. Ele realiza a soma dos respectivos bits,
+com carry in em cascata entre as colunas. Além da saída, fornece a flag de overflow ao comparar o
+carry out das duas colunas mais à esquerda.
+
+> O módulo "aritmetica" realiza as operações de soma e subtração:
+O somador de dois bytes foi adaptado para a subtração na ULA, por meio da composição com um módulo
+que fornece o complemento de um dos bytes. Quando o pino seletor indica 0, o complemento não é
+realizado e o carry in é 0, de forma que o somador realiza a adição dos dois bytes. Quando indica 1,
+o módulo complemento é ativado e fornece o complemento de B, que é somado a A e acrescido de 1 por
+meio do carry in (fornecido pelo próprio pino seletor), obtendo-se A - B. O próprio somador fornece
+a flag de overflow conforme descrita acima.
+
+****************************************************************************************************
+
+Os módulos comparadores são:
+
+> "compara-com-0": utiliza uma porta NAND de oito entradas para verificar se todos os bits são
+iguais a zero (caso em que o byte é igual a zero). verifica se o bit mais significativo é um,
+(caso em que é menor do que zero), e nega os outros dois resultados (caso em que é maior do que
+zero).
+
+> "compara-1-bit": utiliza-se de duas portas AND com uma das entradas negadas para verificar se
+A > B ou A < B, e uma porta NOR para verificar se é igual (caso em que A não é nem maior nem menor
+do que B).
+
+> O comparador completo ("comparador"): combina o módulo somador para realizar A - B. O resultado
+dessa operação é comparado com zero por meio do "compara-com-0" para comparar os valores de A e B.
+Em caso de overflow na subtração, o resultado dessa comparação é ignorado, e comparamos o bit mais
+significativo de A e B para fornecer o resultado:
+(a0 > b0 => A < B; a0 = b0 => A = B; a0 < b0 => A > B).
+
+****************************************************************************************************
+
+Há, ainda, um módulo auxiliar:
+
+> O inversor de bytes ("complemento") recebe um byte de 8 bits e um pino seletor. Quando o valor do
+pino é 0, sua saída é o próprio número. Quando é 1, o valor é o complemento do byte.
+
+****************************************************************************************************
+
+Descrição da ULA:
+
+> Foram agregados os módulos de comparação e de aritmética, fornecendo o resultado e as flags
+desejadas.
+
+****************************************************************************************************
+
+Na "main" colocamos os bytes de entrada, A e B, o pino seletor de operação, a ULA conforme descrita
+acima, o byte resultado da operação e as quatro flags de saída já mencionadas.
