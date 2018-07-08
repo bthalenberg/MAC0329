@@ -1,58 +1,40 @@
-Projeto de CPU - EP 3b
+Projeto de CPU - EP 3c
 
-Arthur Azevedo Massola 10297904
 Bruna Thalenberg 8569211
 
 --------------------------------------------------------------------------------------
-Esta fase consistiu, basicamente, em implementar o esqueleto da UC, unidade de controle,
-e realizar pequenas mudanças no PC, program counter.
+Demos continuação à implementação da fase anterior expandido a UC para  
+identificar todas as instruções, funcionando como um decodificador um pouco mais 
+sofisticado. Já havíamos implementado a flag r/w, que dividia instruções de 
+leitura e escrita, e a flag reset, que reseta o PC:
 
-Inicialmente, mapeamos as instruções entre instruções que exigem escrita e instruções
-que exigem leitura:
-
-READ   WRITE
-01      02
-03      07
-04
-08
-09
-10
-11
-13
-15
-00
-05
-06
-
-Assim, o primeiro passo da implementação da UC foi colocar um IR, instruction register,
-dentro dela, para receber os dados da memória RAM. A partir dele, usamos um splitter para
-dividir os 8 bits iniciais (da instrução) e os 8 finais (do operando). Nessa fase, não
-realizamos nada com os bits do operando, fornecendo-os diretamente como saída, não importa
-qual seja a instrução.
-
-A partir da divisão entre tipos de instrução acima, fazemos três verificações com o valor
-dos 8 bits iniciais:
-
-> se seu valor é igual a 2 ou a 7, setamos o valor do pino de saída read/not write (r/w) 
-para 0. Em caso contrário, setamos para 1.
+> se seu valor é igual a 2 ou a 7, setamos o valor do pino de saída read/not
+write (r/w) para 0. Em caso contrário, setamos para 1. Há um MUX que determina
+a entrada correta de dados na RAM quando é feita a operação de escrita.
 > se seu valor é igual a 9, setamos o valor do pino de saída reset para 1.
 
-O pino read/not write é usado como flag na RAM, em load, e negado, em store. O pino reset
-é usado como flag no PC, em clear, para resetar seu valor.
+> o pino read/not write é usado como flag na RAM, em load, e negado, em store. O pino reset é usado como flag no PC, em clear, para resetar seu valor.
 
---------------------------------------------------------------------------------------
-Além das flags setadas pela UC, há ainda dois pinos de controle:
+Dividimos, então, as instruções que ativam a flag 'ee', instruções que precisam
+acessar um endereço de memória determinado (1, 2, 3, 4, 7, 8).
+ 
+A flag 'load' é ativada pela instrução 10 e possivelmente ativada pelas instruções
+11, 13 e 15, dependendo o resultado da comparação no módulo JIF. Verificamos apenas
+os 8 bits menos significativos na comparação uma vez que nossa ULA é de 8 bits.
 
--> O pino "inc" seta o contador para que incremente seu valor em 1 a cada pulso de CLK.
--> O pino load permite o carregamento assíncrono de dados no PC. Nesse caso, o valor
-carregado é o dos 8 bits finais do valor armazenado na posição de memória atual da RAM,
-ou seja, do operando da posição atual.
--> O pino "in/count" seta o modo de entrada de dados para a RAM, quando em modo write:
-quando 0, os dados enviados consiste no valor do PC. Quando 1, trata-se do valor do input.
+Essas duas flags, em conjunto, determinam o comportamento do PC: quando 'ee' está
+ativa, o incremento é temporariamente suspenso e um MUX é usado para verificar
+o valor do endereço solicitado, retornando depois à posição na sequência do PC.
+Quando 'load' está ativa, o PC recebe assíncronamente o endereço solicitado,
+resetando a contagem. Quando nenhuma das duas está ativa, ele segue o incremento
+pelos pulsos do clock.
 
---------------------------------------------------------------------------------------
+A ULA do EP2 foi reaproveitada na forma de biblioteca, o que implica que operações
+aritméticas são válidas apenas para números de 8 bits. Extensores foram utilizados
+para compatibilizar com o resto do projeto.
 
-Incluímos o arquivo 'test.txt', um programa de teste para as instruções implementadas até
-então:
-0803 imprime o valor 3 no output
-0900 reseta a operação do programa, voltando para a instrução anterior.
+----------------------------------------------------------------------------------
+
+Para testar, sugerimos que o programa seja carregado na RAM (botão direito > load
+image), e que o clock seja manipulado manualmente para que os resultados possam
+ser verificados.
